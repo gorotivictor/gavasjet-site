@@ -84,13 +84,28 @@ function say(el,text,type){el.textContent=text;el.className="msg "+(type||"");}
 
 async function gh(method,path,body){
   const c=cfg();
-  const r=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/${path}`,{
-    method,
-    headers:{Authorization:`Bearer ${c.token}`,Accept:"application/vnd.github+json","Content-Type":"application/json"},
-    body:body?JSON.stringify(body):undefined
+
+  const r=await fetch("https://gavasjet.gorotivictor.workers.dev/",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-Admin-Key":c.token
+    },
+    body:JSON.stringify({
+      method,
+      path,
+      body
+    })
   });
+
   const data=await r.json().catch(()=>({}));
-  if(!r.ok){const e=new Error(data.message||("GitHub error "+r.status));e.status=r.status;throw e;}
+
+  if(!r.ok){
+    const e=new Error(data.message||("Server error "+r.status));
+    e.status=r.status;
+    throw e;
+  }
+
   return data;
 }
 function bytesToB64(bytes){let s="";const ch=0x8000;for(let i=0;i<bytes.length;i+=ch)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+ch));return btoa(s);}
